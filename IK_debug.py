@@ -84,7 +84,7 @@ def test_code(test_case):
                 [           cos(q),              -sin(q),             0,                    a],
                 [sin(q)*cos(alpha),    cos(q)*cos(alpha),   -sin(alpha),        -sin(alpha)*d],
                 [sin(q)*sin(alpha),    cos(q)*sin(alpha),    cos(alpha),         cos(alpha)*d],
-                [                0,                    0,             0,                    0],
+                [                0,                    0,             0,                    1],
             ])
         return TF
 
