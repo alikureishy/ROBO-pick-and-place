@@ -1,11 +1,8 @@
 ## Project: Kinematics Pick & Place
 
-## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+[Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 
 ---
-### Writeup / README
-
 ### Kinematic Analysis
 #### 1. Run the forward_kinematics demo and evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot and derive its DH parameters.
 
