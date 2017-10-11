@@ -151,6 +151,10 @@ Before proceeding, we must understand what information will be provided as the '
 - Position of the gripper: px, py, pz
 - Orientation of the gripper: roll, pitch, yaw
 
+A key piece of this analysis is the location of the wirst center (WC). Once we have that, we can proceed with the position and orientation analysis.
+
+So, here is how we get the location of the wrist center (WC).
+
 ### Position
 
 The position analysis is only concerned with the first three joints -- in order to position the WC (Wrist Center) of the spherical wrist. First, however, we must get the position of the WC, wrt to the position of the gripper.
@@ -161,7 +165,7 @@ Next, with the knowledge of the position of the WC, we can proceed to the IK ana
 
 
 
-Therefore, 
+
 
 ### Orientation
 
@@ -206,9 +210,6 @@ T_EE = T_EE' * Rz(180) * Ry(-90)
 	  		[							   cos(pitch)*cos(roll),								  -sin(roll)*cos(pitch),				-sin(pitch),		pz],
       		[             									  0,             										  0,						  0,     1]]
 ```
-
-
-First for the rotational matrix for the spherical wrist (R3_6). An important step in this determination is to correct for the 
 
 
 The rotation matrix of the spherical wrist (R3_6) is calculated as:
