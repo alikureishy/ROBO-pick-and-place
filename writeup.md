@@ -110,7 +110,7 @@ T5_6:    [[ cos(θ6), -sin(θ6),  0,      0],
 And here is the transformation matrix for the gripper. Note that there is no rotation, but there is a translation in the Z direction (out forward).
 
 ```
-T6_G: [[       1,        0,  0,      0],
+T6_G:    [[       1,        0,  0,      0],
           [       0,        1,  0,      0],
           [       0,        0,  1,  0.303],
           [       0,        0,  0,      1]]
@@ -131,7 +131,8 @@ T0_G = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_G
 As an example, let's calculate the homogenous transformation matrix with zero theta values -- i.e, neutral joint angles. So, substituting in zero for all the thetas in this equation yields:
 
 ```
-T0_G_Neutral = [[ 1.0,   0,   0, 2.153],
+T0_G_Neutral = 
+	  [[ 1.0,   0,   0, 2.153],
            [   0, 1.0,   0,     0],
            [   0,   0, 1.0, 1.946],
            [   0,   0,   0,     1]]
@@ -176,39 +177,39 @@ Based on Tait-Bryan angles, the orientation of the gripper using (roll, pitch, y
 The individual rotation matrices for rotations around an angle θ (which could be roll, pitch or yaw, respectively) for each of the X, Y and Z axes are:
 
 ```
-Rx = [[				1,				 0,			      0],
-	  [				0,        	cos(θ),       	-sin(θ)],
-	  [				0,        	sin(θ),       	 cos(θ)]]
+Rx = [[1,       0,       0],
+      [0,  cos(θ), -sin(θ)],
+      [0,  sin(θ), cos(θ)]]
 
 
-Ry = [[		   cos(θ),				 0,			  sin(θ)],
-	  [				0,        		 1,       		  0],
-	  [		  -sin(θ),        		 0,       	  cos(θ)]]
+Ry = [[cos(θ), 	0,   sin(θ)],
+      [0, 	1,	  0],
+      [-sin(θ), 0,   cos(θ)]]
 
-Rz = [[			cos(θ),		   -sin(θ),			      0],
-	  [			sin(θ),        	cos(θ),       		  0],
-	  [				0,        		 0,       	 	  1]]
+Rz = [[cos(θ), 	-sin(θ), 0],
+      [sin(θ),  cos(θ),  0],
+      [0, 	0, 	 1]]
 ```
 
 Therefore, using (roll, pitch, yaw) as Tait-Bryan angles, the combined transformation matrix for the gripper, with respect to the base frame, and inputs (px, py, pz, roll, pitch, yaw), is given by:
 ```
 T_EE' = Rx(yaw) * Ry(pitch) * Rz(yaw)
-		= Matrix[
-	  		[cos(pitch)*cos(yaw),       	sin(pitch)*sin(roll)*cos(yaw) - sin(yaw)*cos(roll),  	sin(pitch)*cos(roll)*cos(yaw) + sin(roll)*sin(yaw),  	px],
-	  		[sin(yaw)*cos(pitch),			sin(pitch)*sin(roll)*sin(yaw) + cos(yaw)*cos(roll), 		sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), 		py],
-	  		[		 -sin(pitch),				sin(roll)*cos(pitch),									cos(pitch)*cos(roll),								pz],
-      		[             	0,             												0,       												     0,     1]]
+= Matrix[
+	[cos(pitch)*cos(yaw), sin(pitch)*sin(roll)*cos(yaw) - sin(yaw)*cos(roll), sin(pitch)*cos(roll)*cos(yaw) + sin(roll)*sin(yaw), px],
+	[sin(yaw)*cos(pitch), sin(pitch)*sin(roll)*sin(yaw) + cos(yaw)*cos(roll), sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), py],
+	[-sin(pitch), sin(roll)*cos(pitch), cos(pitch)*cos(roll), pz],
+	[0,0,0, 1]]
 ```
 
 A caveat in this case, is that to get the correct transformation of the gripper wrt the base frame, we must also translate the the gripper's frame which is in the URDF convention, into the DF-convention, prior to using the transformation matrix in our calculations. This correction requires correcting the rotation matrix (T_EE') above to include a rotation of the gripper's coordinate frame around the Z axis by 180 degrees, first, and then around the Y axis by -90 degrees:
 
 ```
 T_EE = T_EE' * Rz(180) * Ry(-90)
-		= Matrix[
-	  		[cos(pitch)*coss(roll)*cos(yaw) + sin(roll)*sin(yaw),  	-sin(pitch)*sin(roll)*cos(yaw) + sin(yaw)*cos(roll),  	cos(pitch)*cos(yaw),  	px],
-	  		[sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), 	-sin(pitch)*sin(roll)*sin(yaw) - cos(yaw)*cos(roll), 	sin(yaw)*cos(pitch), 	py],
-	  		[							   cos(pitch)*cos(roll),								  -sin(roll)*cos(pitch),				-sin(pitch),		pz],
-      		[             									  0,             										  0,						  0,     1]]
+= Matrix[
+	[cos(pitch)*coss(roll)*cos(yaw) + sin(roll)*sin(yaw),  	-sin(pitch)*sin(roll)*cos(yaw) + sin(yaw)*cos(roll),  	cos(pitch)*cos(yaw), px],
+	[sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), 	-sin(pitch)*sin(roll)*sin(yaw) - cos(yaw)*cos(roll), 	sin(yaw)*cos(pitch), py],
+	[cos(pitch)*cos(roll), -sin(roll)*cos(pitch), -sin(pitch), pz],
+        [ 0, 0,	 0,     1]]
 ```
 
 
