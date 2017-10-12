@@ -1,7 +1,7 @@
 # Kuka KR210 Pick and Place Project
 ---
 
-![Kuka KR210 Pick and Place Project][misc_images/pick_and_place_challenge.gif]
+![Kuka KR210 Pick and Place Project](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/pick_and_place_challenge.gif)
 
 ## Table of Contents
 
@@ -41,7 +41,7 @@ The IK analysis will follow these steps:
 
 This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper attached to the 6th joint. Here is the Denavit-Hartenberg (DH) diagram of the arm:
 
-![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm][misc_images/dh_diagram.jpg]
+![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_diagram.jpg)
 
 [Note: This will be polished and re-uploadded for clarity]
 
@@ -49,7 +49,7 @@ This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper a
 
 I obtained the following DH parameters from manipulator specifications (____ file). Note that these values relate to modified DH parameters.
 
-![Denavit-Hartenberg parameter formulae][dh_parameter_formulae]
+![Denavit-Hartenberg parameter formulae](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_parameter_formulae.png)
 
 | n | α(i-1) | a(i-1) | d(i) | θ(i) |
 |:-:|:--:|:-----:|:------:|:---:|
@@ -253,7 +253,7 @@ where:
 The position analysis is only concerned with the first three joints -- in order to just position the WC (Wrist Center) of the spherical wrist at the requisite location (regardless of any orientation).
 
 This is illustrated entirely in the following diagram:
-![Illustration of Position Analysis of KUKA 210 Arm][misc_images/position_analysis_diagram.jpg]
+![Illustration of Position Analysis of KUKA 210 Arm](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/position_analysis_diagram.jpg)
 
 [Note: This will be polished and re-uploadded for clarity]
 
