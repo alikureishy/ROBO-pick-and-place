@@ -20,7 +20,7 @@
 
 The purpose of this project is to gain exposure to Inverse Kinematic (IK) analysis (forward and inverse), for a simulated [Kuka KR210](https://www.kuka.com/en-us/products/robotics-systems-industrial-robots/kr-210-2-f-exclusive) 6-DOF (Degree Of Freedom) manipulator, to grasp a can from a random position on a shelf, and drop it into a bin placed next to it.
 
-The simulation, at a high level, consists of the following sequence of steps:
+The simulation, at a high level, consists of the following sequence of motions:
 1. Calculate the expected trajectory of the arm, from the starting position to the grasping position
 1. Perform IK analysis to move the manipulator (gripper) arm through the trajectory above
 1. Reach out to grasp the can
@@ -32,7 +32,7 @@ The simulation, at a high level, consists of the following sequence of steps:
 
 The IK analysis is only required for steps 2 and 7 above. The functionality for the remaining steps is provided by the simulation.
 
-The IK analysis will follow these steps:
+The IK analysis in steps 2 and 7 above, will follow the below sequence of operations each time:
 1. Determine the Modified DH-diagram
 1. Determine the Modified DH-parameter table
 1. Determine the transformation matrices for each joint, using the DH parameters
@@ -41,7 +41,7 @@ The IK analysis will follow these steps:
 1. Determine joint angles 1-3 using position analysis of WC
 1. Determine the _symbolic_ rotation matrix (R3_6_symbolic) using the evaluated version of R0_3 and Rrpy
 1. Determine the _evaluated_ rotation matrix (R3_6_evaluated) using the transformation matrices above (T3_4, T4_5 and T5_6)
-1. Determine joint angles 4-6 using equivalencies between R3_6_symbolic and R3_6_evaluated and then solving for the 3 joint angles.
+1. Determine joint angles 4-6 using equivalencies between R3_6_symbolic and R3_6_evaluated and then solving them for the 3 joint angles.
 
 ## Denavit-Hartenberg Diagram
 
