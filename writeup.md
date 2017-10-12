@@ -1,4 +1,4 @@
-# Kuka KR210 Pick and Place Project
+# ROS Inverse Kinematics - Pick & Place - w/ the Kuka KR210 6-DoF Manipulator
 ---
 
 ![Kuka KR210 Pick and Place Project](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/pick_and_place_challenge.gif)
