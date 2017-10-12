@@ -15,6 +15,7 @@
     - [Position Analysis](#position-analysis)
     - [Orientation Analysis](#orientation-analysis)
 - [Running the code](#running-the-code)
+- [References](#references)
 
 ## Overview
 
@@ -413,7 +414,8 @@ Step 6. Run the IK_server utility in another terminal window
 
 The 'safe_spawner.sh' file should trigger a few terminal windows to be spawned, for the different ROS nodes. One of them will be Gazebo, and the other RViz.
 
-<!--
+## References
+
 Some inspiration received from the following writeups:
 - https://github.com/mithi/arm-ik/blob/master/WRITEUP.pdf (for some of the trigonometric calculations)
 - https://github.com/camisatx/RoboticsND/blob/master/projects/kinematics/kuka_kr210/README.md (for 
@@ -421,7 +423,4 @@ Some inspiration received from the following writeups:
 - https://github.com/ancabilloni/Robot-Arm-Kinematics/blob/master/README.md
 - https://github.com/jaycode/RoboND-Kinematics-Project/blob/master/README.md
 
-Credits obviously to the Udacity Robotics Nanodegree curriculum, whose curriculum this project was a part of.
-https://classroom.udacity.com/nanodegrees/nd209
-
--->
+Many thanks to the staff and course content creators at the Udacity Robotics Nanodegree, whose impressive curriculum this project was a part of: https://classroom.udacity.com/nanodegrees/nd209
