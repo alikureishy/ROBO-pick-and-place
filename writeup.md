@@ -258,10 +258,16 @@ R0_6 = Rrpy
 Both R0_6 and Rrpy are homogenous rotations between the base link and the gripper link.
 ```
 
-We can substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices and pre-multiply both sides of the above equation by inv(R0_3) which leads to:
+Note that we needn't include the rotation for the EE, because it has no rotation relative to J6. What we want now, to isolate the orientation problem from the overall IK analysis, is R3_6, which is obtained as shown below:
 
 ```
 R3_6 = inv(R0_3) * Rrpy
 ```
 
-This (above) is the rotation matrix of the spherical wrist (R3_6). And now, knowing this value allows us to decouple the IK analysis into the orientation piece, which we use next to derive the Euler angles (i.e, θ4, θ5 and θ6).
+We can now substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices, to obtain the evaluated form of R0_3, to solve for inv(R0_3). This (above) is then the rotation matrix of the spherical wrist (R3_6), which we can finally use to derive the Euler angles (i.e, θ4, θ5 and θ6), as shown next.
+
+
+
+
+
+
