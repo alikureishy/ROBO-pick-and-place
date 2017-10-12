@@ -9,7 +9,7 @@
 - [Denavit-Hartenberg Diagram](#denavit-hartenberg-diagram)
 - [Denavit-Hartenberg (Modified) Parameters](#denavit-hartenberg-modified-parameters)
 - [Transformation Matrices](#transformation-matrices)
-- [Homogeneous Transformation Matrix](#homogeneous-transformation-matrix)
+- [Homogeneous Transformation Matrix (Base to gripper)](#homogeneous-transformation-matrix-base-to-gripper)
 - [Inverse Kinematic Analysis](#inverse-kinematic-analysis)
     - [Wrist Center Determination](#wrist-center-determination)
     - [Position Analysis](#position-analysis)
