@@ -15,7 +15,7 @@
     - [Position Analysis](#position-analysis)
     - [Orientation Analysis](#orientation-analysis)
 - [Running the code](#running-the-code)
-- [References](#references)
+- [Inspirations](#inspirations)
 
 ## Overview
 
@@ -414,7 +414,7 @@ Step 6. Run the IK_server utility in another terminal window
 
 The 'safe_spawner.sh' file should trigger a few terminal windows to be spawned, for the different ROS nodes. One of them will be Gazebo, and the other RViz.
 
-## References
+## Inspirations
 
 Some inspiration received from the following writeups:
 - https://github.com/mithi/arm-ik/blob/master/WRITEUP.pdf
