@@ -1,7 +1,7 @@
 # Kuka KR210 Pick and Place Project
 ---
 
-![Kuka KR210 Pick and Place Project][pick_and_place]
+![Kuka KR210 Pick and Place Project][misc_images/pick_and_place_challenge.gif]
 
 ## Table of Contents
 
@@ -41,7 +41,7 @@ The IK analysis will follow these steps:
 
 This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper attached to the 6th joint. Here is the Denavit-Hartenberg (DH) diagram of the arm:
 
-![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm][dh_diagram]
+![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm][misc_images/dh_diagram]
 
 [Note: This will be polished and re-uploadded for clarity]
 
@@ -253,7 +253,7 @@ where:
 The position analysis is only concerned with the first three joints -- in order to just position the WC (Wrist Center) of the spherical wrist at the requisite location (regardless of any orientation).
 
 This is illustrated entirely in the following diagram:
-![Illustration of Position Analysis of KUKA 210 Arm][position_analysis_diagram]
+![Illustration of Position Analysis of KUKA 210 Arm][misc_images/position_analysis_diagram]
 
 [Note: This will be polished and re-uploadded for clarity]
 
