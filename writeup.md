@@ -1,19 +1,9 @@
 # Kuka KR210 Pick and Place Project
 ---
 
-![Kuka KR210 Pick and Place Project][kuka_pick_and_place]
+![Kuka KR210 Pick and Place Project][pick_and_place]
 
-The purpose of this project is to gain exposure to Inverse Kinematic (IK) analysis (forward and inverse), for a simulated [Kuka KR210](https://www.kuka.com/en-us/products/robotics-systems industrial-robots/kr-210-2-f-exclusive) 6-DOF (Degree Of Freedom) manipulator, to grasp a can from a random position on a shelf, and drop it into a bin placed next to it.
-
-The simulation, at a high level, consists of the following sequence of steps:
-1. Move the manipulator (gripper) arm to a grasping position relative to the can on the shelf
-1. Reach out to grasp the can
-1. Move the manipulator (gripper) arm above the bin
-1. Release the can to let it fall into the bin
-
-The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supported rudimentary motions of this robot.
-
-### Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Denavit-Hartenberg Diagram](#denavit-hartenberg-diagram)
@@ -27,11 +17,25 @@ The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supp
 
 ## Overview
 
-The steps we will take are as follows:
+The purpose of this project is to gain exposure to Inverse Kinematic (IK) analysis (forward and inverse), for a simulated [Kuka KR210](https://www.kuka.com/en-us/products/robotics-systems industrial-robots/kr-210-2-f-exclusive) 6-DOF (Degree Of Freedom) manipulator, to grasp a can from a random position on a shelf, and drop it into a bin placed next to it.
+
+The simulation, at a high level, consists of the following sequence of steps:
+1. Move the manipulator (gripper) arm to a grasping position relative to the can on the shelf
+1. Reach out to grasp the can
+1. Move the manipulator (gripper) arm above the bin
+1. Release the can to let it fall into the bin
+
+The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supported rudimentary motions of this robot.
+
+The IK analysis will follow these steps:
 1. Determine the Modified DH-diagram
 1. Determine the Modified DH-parameter table
 1. Determine the transformation matrices for each joint, using the DH parameters
-1. Determine the homogenous transformation matrix in terms of the input parameters
+1. Determine the homogenous transformation matrix in terms of the input parameters alone
+1. Determine the location of the Wrist Center, working backwards from the EE, using the homogenous transformation matrix obtained from previous step
+1. Determine joint angles 1-3 using position analysis of WC
+1. Determine rotation matrix (R3_6) from WC to EE
+1. Determine joint angles 4-6 using orientation analysis from R3_6
 
 ## Denavit-Hartenberg Diagram
 
@@ -44,6 +48,8 @@ This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper a
 ## Denavit-Hartenberg (Modified) Parameters
 
 I obtained the following DH parameters from manipulator specifications (____ file). Note that these values relate to modified DH parameters.
+
+![Denavit-Hartenberg parameter formulae][dh_parameter_formulae]
 
 | n | α(i-1) | a(i-1) | d(i) | θ(i) |
 |:-:|:--:|:-----:|:------:|:---:|
