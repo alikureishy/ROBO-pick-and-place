@@ -14,6 +14,7 @@
     - [Wrist Center Determination](#wrist-center-determination)
     - [Position Analysis](#position-analysis)
     - [Orientation Analysis](#orientation-analysis)
+- [Running the code](#running-the-code)
 
 ## Overview
 
@@ -366,4 +367,37 @@ s = -r22 / r21
 
 We therefore have θ4, θ5 and θ6!
 
-Done!
+## Running the Code
+
+The code is located under the kuka_arm/scripts/IK_server.py file
+There is a debug script (for testing) that is located at the root level: IK_debug.py
+
+Running the server:
+
+1. Create the catkin workspace:
+```
+~/> mkdir -p ~/catkin_ws/src
+```
+1. Clone this repository:
+```
+~/catkin_ws/src/>git clone git@github.com:safdark/ROBO-pick-and-place .
+```
+1. Run:
+```
+~/catkin_ws/src/>catkin_make
+```
+1. Run:
+```
+~/catkin_ws/src/>source ../devel/setup.bash
+```
+1. Run:
+```
+~/catkin_ws/src/>cd ROBO-pick-and-place/kuka_arm/scripts
+~/catkin_ws/src/ROBO-pick-and-place/kuka_arm/scripts/>./safe_spawner.sh
+```
+1. Run the IK_server utility in another terminal window
+```
+~/catkin_ws/src/ROBO-pick-and-place/kuka_arm/scripts/>rosrun kuka_arm IK_server.py
+```
+
+The 'safe_spawner.sh' file should trigger a few terminal windows to be spawned, for the different ROS nodes. One of them will be Gazebo, and the other RViz.
