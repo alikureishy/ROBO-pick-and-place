@@ -15,13 +15,23 @@ The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supp
 
 ### Table of Contents
 
+- [Overview](#overview)
 - [Denavit-Hartenberg Diagram](#denavit-hartenberg-diagram)
 - [Denavit-Hartenberg (Modified) Parameters](#denavit-hartenberg-modified-parameters)
 - [Transformation Matrices](#transformation-matrices)
 - [Homogeneous Transformation Matrix](#homogeneous-transformation-matrix)
 - [Inverse Kinematic Analysis](#inverse-kinematic-analysis)
+    - [Wrist Center Determination](#wrist-center-determination)
     - [Position Analysis](#position-analysis)
     - [Orientation Analysis](#orientation-analysis)
+
+## Overview
+
+The steps we will take are as follows:
+1. Determine the Modified DH-diagram
+1. Determine the Modified DH-parameter table
+1. Determine the transformation matrices for each joint, using the DH parameters
+1. Determine the homogenous transformation matrix in terms of the input parameters
 
 ## Denavit-Hartenberg Diagram
 
@@ -29,8 +39,7 @@ This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper a
 
 ![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm][dh_diagram]
 
-
-
+[Note: This will be polished and re-uploadded for clarity]
 
 ## Denavit-Hartenberg (Modified) Parameters
 
@@ -153,6 +162,8 @@ Before proceeding, we must understand what information will be provided as the '
 
 The roll, pitch, and yaw values are returned in 'quaternions', so we need to use the transformations.py module from the TF package. The 'euler_from_quaternions()' method outputs the roll, pitch, and yaw values as radians.
 
+### Wrist Center Determination
+
 A key piece of this analysis is the location of the wirst center (WC).
 
 The orientation analysis requires us to determine the rotation matrix of joints 4, 5 and 6 (the spherical wrist) using the (roll, pitch, yaw) inputs as Tait-Bryan angles, and then calculate the requisite Euler angle equations wrt that rotation matrix. To get to that, some explanations and calculations are due...
@@ -233,19 +244,12 @@ where:
 
 ### Position Analysis
 
-The position analysis is only concerned with the first three joints -- in order to position the WC (Wrist Center) of the spherical wrist.
+The position analysis is only concerned with the first three joints -- in order to just position the WC (Wrist Center) of the spherical wrist at the requisite location (regardless of any orientation).
 
-<Diagram here to illustrate the trigonometry involved>
+This is illustrated entirely in the following diagram:
+![Illustration of Position Analysis of KUKA 210 Arm][position_analysis_diagram]
 
-```
-θ1 = atan2(wy, wx)
-θ2 = atan2(s, r)
-	where:
-	s = wz - d1
-	r = sqrt(wx^2 + wy^2) (always +ve)
-θ3 = 
-
-```
+[Note: This will be polished and re-uploadded for clarity]
 
 ### Orientation Analysis
 
@@ -274,13 +278,86 @@ which yields:
 
 ```
 R3_6 = Matrix([
-	[-sin(q4)*sin(q6) + cos(q4)*cos(q5)*cos(q6), 	-sin(q4)*cos(q6) - sin(q6)*cos(q4)*cos(q5),	-sin(q5)*cos(q4)],
-	[sin(q5)*cos(q6),				-sin(q5)*sin(q6),				cos(q5)],
-	[-sin(q4)*cos(q5)*cos(q6) - sin(q6)*cos(q4),	sin(q4)*sin(q6)*cos(q5) - cos(q4)*cos(q6),	sin(q4)*sin(q5)]]
+	[-sin(θ4)*sin(θ6) + cos(θ4)*cos(θ5)*cos(θ6), 	-sin(θ4)*cos(θ6) - sin(θ6)*cos(θ4)*cos(θ5),	-sin(θ5)*cos(θ4)],
+	[sin(θ5)*cos(θ6),				-sin(θ5)*sin(θ6),				cos(θ5)],
+	[-sin(θ4)*cos(θ5)*cos(θ6) - sin(θ6)*cos(θ4),	sin(θ4)*sin(θ6)*cos(θ5) - cos(θ4)*cos(θ6),	sin(θ4)*sin(θ5)]]
 ```
 
 And the last three joints can be solved as following:
 
+Representing this as:
+```
+Matrix([
+	[r11, 	r12,	r13],
+	[r21,	r22,	r23],
+	[r31,	r33,	r33]]
+```
 
+we get:
 
+```
+r11 = -sin(θ4)*sin(θ6) + cos(θ4)*cos(θ5)*cos(θ6)
+r12 = -sin(θ4)*cos(θ6) - sin(θ6)*cos(θ4)*cos(θ5)
+r13 = -sin(θ5)*cos(θ4)
+r21 = sin(θ5)*cos(θ6)
+r22 = -sin(θ5)*sin(θ6)
+r23 = cos(θ5)
+r31 = -sin(θ4)*cos(θ5)*cos(θ6) - sin(θ6)*cos(θ4)
+r32 = sin(θ4)*sin(θ6)*cos(θ5) - cos(θ4)*cos(θ6)
+r33 = sin(θ4)*sin(θ5)
+```
 
+Let's now derive the theta angles, using some trigonometric formulas:
+
+```
+sin(θ)^2 + cos(θ)^2 = 1 <---- Pythagorean Identity (Unit Circle)
+```
+
+θ4:
+
+```
+Let:
+q = r33 / -r13
+  = sin(θ4)*sin(θ5) / sin(θ5)*cos(θ4)
+  = sin(θ4) / cos(θ4)
+  = tan(θ4)
+=>
+θ4 = atan(q)
+   = atan2(r33, -r13)
+
+θ4 = atan2(r33, -r13)
+```
+
+θ5:
+```
+Let:
+p = r13^2 + r33^2
+  = sin(θ5)^2*cos(θ4)^2 + sin(θ4)^2*sin(θ5)^2
+  = sin(θ5)^2*(cos(θ4)^2 + sin(θ4)^2)
+  = sin(θ5)^2*(1) # Using pythagorean identity from above
+=>
+	sin(θ5) = sqrt(r13^2 + r33^2)
+	cos(θ5) = r23
+
+Also:
+tan(θ5) = sin(θ5) / cos(θ5)
+	= sqrt(r13^2 + r33^2) / r23
+=>
+θ5 = atan2(sqrt(r13^2 + r33^2), r23)
+```
+
+θ6:
+```
+Let:
+s = -r22 / r21
+  = sin(θ5)*sin(θ6) / sin(θ5)*cos(θ6)
+  = sin(θ6) / cos(θ6)
+  = tan(θ6)
+=>
+θ6 = atan(-r22/r21)
+θ6 = atan2(-r22, r21)
+```
+
+We therefore have θ4, θ5 and θ6!
+
+Done!
