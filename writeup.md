@@ -20,9 +20,8 @@ The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supp
 - [Transformation Matrices](#transformation-matrices)
 - [Homogeneous Transformation Matrix](#homogeneous-transformation-matrix)
 - [Inverse Kinematic Analysis](#inverse-kinematic-analysis)
-    - [Position](#position)
-    - [Orientation](#orientation)
-    	- [Euler Angles](#euler-angles)
+    - [Position Analysis](#position-analysis)
+    - [Orientation Analysis](#orientation-analysis)
 
 ## Denavit-Hartenberg Diagram
 
@@ -266,7 +265,21 @@ R3_6 = inv(R0_3) * Rrpy
 
 We can now substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices, to obtain the evaluated form of R0_3, to solve for inv(R0_3). This (above) is then the rotation matrix of the spherical wrist (R3_6), which we can finally use to derive the Euler angles (i.e, θ4, θ5 and θ6), as shown next.
 
+We can also obtain the symbolic form of R3_6 using the original transformation matrics, starting from WC. This is obtained by:
 
+T3_6 = T3_4 * T4_5 * T5_6
+R3_6 = T3_6[:3, :3]
+
+which yields:
+
+```
+R3_6 = Matrix([
+	[-sin(q4)*sin(q6) + cos(q4)*cos(q5)*cos(q6), 	-sin(q4)*cos(q6) - sin(q6)*cos(q4)*cos(q5),	-sin(q5)*cos(q4)],
+	[sin(q5)*cos(q6),				-sin(q5)*sin(q6),				cos(q5)],
+	[-sin(q4)*cos(q5)*cos(q6) - sin(q6)*cos(q4),	sin(q4)*sin(q6)*cos(q5) - cos(q4)*cos(q6),	sin(q4)*sin(q5)]]
+```
+
+And the last three joints can be solved as following:
 
 
 
