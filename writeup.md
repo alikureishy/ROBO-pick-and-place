@@ -417,8 +417,8 @@ The 'safe_spawner.sh' file should trigger a few terminal windows to be spawned, 
 ## References
 
 Some inspiration received from the following writeups:
-- https://github.com/mithi/arm-ik/blob/master/WRITEUP.pdf (for some of the trigonometric calculations)
-- https://github.com/camisatx/RoboticsND/blob/master/projects/kinematics/kuka_kr210/README.md (for 
+- https://github.com/mithi/arm-ik/blob/master/WRITEUP.pdf
+- https://github.com/camisatx/RoboticsND/blob/master/projects/kinematics/kuka_kr210/README.md
 - https://github.com/adammalpass/RoboND-Kinematics-Project/blob/master/report.pdf
 - https://github.com/ancabilloni/Robot-Arm-Kinematics/blob/master/README.md
 - https://github.com/jaycode/RoboND-Kinematics-Project/blob/master/README.md
