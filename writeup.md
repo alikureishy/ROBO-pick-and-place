@@ -21,12 +21,16 @@
 The purpose of this project is to gain exposure to Inverse Kinematic (IK) analysis (forward and inverse), for a simulated [Kuka KR210](https://www.kuka.com/en-us/products/robotics-systems-industrial-robots/kr-210-2-f-exclusive) 6-DOF (Degree Of Freedom) manipulator, to grasp a can from a random position on a shelf, and drop it into a bin placed next to it.
 
 The simulation, at a high level, consists of the following sequence of steps:
-1. Move the manipulator (gripper) arm to a grasping position relative to the can on the shelf
+1. Calculate the expected trajectory of the arm, from the starting position to the grasping position
+1. Perform IK analysis to move the manipulator (gripper) arm through the trajectory above
 1. Reach out to grasp the can
-1. Move the manipulator (gripper) arm above the bin
+1. Grasp the arm
+1. Retract the arm holding the grasped can
+1. Calculate the expected trajectory of the arm, from the grasped position to the bin
+1. Perform IK analysis to move the manipulator (gripper) arm through the trajectory above
 1. Release the can to let it fall into the bin
 
-The IK analysis is only required for steps 1 and 3 above. Steps 2 and 4 are supported rudimentary motions of this robot.
+The IK analysis is only required for steps 2 and 7 above. The functionality for the remaining steps is provided by the simulation.
 
 The IK analysis will follow these steps:
 1. Determine the Modified DH-diagram
@@ -35,8 +39,9 @@ The IK analysis will follow these steps:
 1. Determine the homogenous transformation matrix in terms of the input parameters alone
 1. Determine the location of the Wrist Center, working backwards from the EE, using the homogenous transformation matrix obtained from previous step
 1. Determine joint angles 1-3 using position analysis of WC
-1. Determine rotation matrix (R3_6) from WC to EE
-1. Determine joint angles 4-6 using orientation analysis from R3_6
+1. Determine the _symbolic_ rotation matrix (R3_6_symbolic) using the evaluated version of R0_3 and Rrpy
+1. Determine the _evaluated_ rotation matrix (R3_6_evaluated) using the transformation matrices above (T3_4, T4_5 and T5_6)
+1. Determine joint angles 4-6 using equivalencies between R3_6_symbolic and R3_6_evaluated and then solving for the 3 joint angles.
 
 ## Denavit-Hartenberg Diagram
 
