@@ -276,12 +276,14 @@ R3_6 = inv(R0_3) * Rrpy
 
 We can now substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices, to obtain the evaluated form of R0_3, to solve for inv(R0_3). This (above) is then the rotation matrix of the spherical wrist (R3_6), which we can finally use to derive the Euler angles (i.e, θ4, θ5 and θ6), as shown next.
 
-We can also obtain the symbolic form of R3_6 using the original transformation matrics, starting from WC. This is obtained by:
-
+<!--
+TODO: Determine the accuracy of the below referenced option:
+Option: We can also obtain the symbolic form of R3_6 using the original transformation matrics, starting from WC. This is obtained by:
 T3_6 = T3_4 * T4_5 * T5_6
 R3_6 = T3_6[:3, :3]
+-->
 
-which yields:
+Printing this evaluated R3_6 yields:
 
 ```
 R3_6 = Matrix([
@@ -289,8 +291,6 @@ R3_6 = Matrix([
 	[sin(θ5)*cos(θ6),				-sin(θ5)*sin(θ6),				cos(θ5)],
 	[-sin(θ4)*cos(θ5)*cos(θ6) - sin(θ6)*cos(θ4),	sin(θ4)*sin(θ6)*cos(θ5) - cos(θ4)*cos(θ6),	sin(θ4)*sin(θ5)]]
 ```
-
-And the last three joints can be solved as following:
 
 Representing this as:
 ```
