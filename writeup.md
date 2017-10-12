@@ -152,23 +152,9 @@ Before proceeding, we must understand what information will be provided as the '
 - Position of the gripper: px, py, pz
 - Orientation of the gripper: roll, pitch, yaw
 
-A key piece of this analysis is the location of the wirst center (WC). Once we have that, we can proceed with the position and orientation analysis.
+The roll, pitch, and yaw values are returned in 'quaternions', so we need to use the transformations.py module from the TF package. The 'euler_from_quaternions()' method outputs the roll, pitch, and yaw values as radians.
 
-So, here is how we get the location of the wrist center (WC).
-
-### Position
-
-The position analysis is only concerned with the first three joints -- in order to position the WC (Wrist Center) of the spherical wrist. First, however, we must get the position of the WC, wrt to the position of the gripper.
-
-![Inverse kinematic position calculation diagram][trigonometric_diagram]
-
-Next, with the knowledge of the position of the WC, we can proceed to the IK analysis for the first 3 joint angles - θ1, θ2, θ3. The calculation is illustrated in this diagram.
-
-
-
-
-
-### Orientation
+A key piece of this analysis is the location of the wirst center (WC).
 
 The orientation analysis requires us to determine the rotation matrix of joints 4, 5 and 6 (the spherical wrist) using the (roll, pitch, yaw) inputs as Tait-Bryan angles, and then calculate the requisite Euler angle equations wrt that rotation matrix. To get to that, some explanations and calculations are due...
 
@@ -191,9 +177,9 @@ Rz = [[cos(θ), 	-sin(θ), 0],
       [0, 	0, 	 1]]
 ```
 
-Therefore, using (roll, pitch, yaw) as Tait-Bryan angles, the combined transformation matrix for the gripper, with respect to the base frame, and inputs (px, py, pz, roll, pitch, yaw), is given by:
+Therefore, using (roll, pitch, yaw) as Tait-Bryan angles, the homogenous transformation matrix for the gripper, with respect to the base frame, and inputs (roll, pitch, yaw), is given by:
 ```
-T_EE' = Rx(yaw) * Ry(pitch) * Rz(yaw)
+Rrpy' = Rz(yaw) * Ry(pitch) * Rx(roll)
 = Matrix[
 	[cos(pitch)*cos(yaw), sin(pitch)*sin(roll)*cos(yaw) - sin(yaw)*cos(roll), sin(pitch)*cos(roll)*cos(yaw) + sin(roll)*sin(yaw), px],
 	[sin(yaw)*cos(pitch), sin(pitch)*sin(roll)*sin(yaw) + cos(yaw)*cos(roll), sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), py],
@@ -204,13 +190,73 @@ T_EE' = Rx(yaw) * Ry(pitch) * Rz(yaw)
 A caveat in this case, is that to get the correct transformation of the gripper wrt the base frame, we must also translate the the gripper's frame which is in the URDF convention, into the DF-convention, prior to using the transformation matrix in our calculations. This correction requires correcting the rotation matrix (T_EE') above to include a rotation of the gripper's coordinate frame around the Z axis by 180 degrees, first, and then around the Y axis by -90 degrees:
 
 ```
-T_EE = T_EE' * Rz(180) * Ry(-90)
+Rrpy = Rrpy' * Rz(180) * Ry(-90)
 = Matrix[
 	[cos(pitch)*coss(roll)*cos(yaw) + sin(roll)*sin(yaw),  	-sin(pitch)*sin(roll)*cos(yaw) + sin(yaw)*cos(roll),  	cos(pitch)*cos(yaw), px],
 	[sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), 	-sin(pitch)*sin(roll)*sin(yaw) - cos(yaw)*cos(roll), 	sin(yaw)*cos(pitch), py],
 	[cos(pitch)*cos(roll), -sin(roll)*cos(pitch), -sin(pitch), pz],
         [ 0, 0,	 0,     1]]
 ```
+
+So, the combined homogenous transformation matrix, for the inputs (px, py, pz, roll, pitch, yaw) is:
+```
+Trpy = Matrix[
+	[cos(pitch)*coss(roll)*cos(yaw) + sin(roll)*sin(yaw),  	-sin(pitch)*sin(roll)*cos(yaw) + sin(yaw)*cos(roll),  	cos(pitch)*cos(yaw), px],
+	[sin(pitch)*sin(yaw)*cos(roll) - sin(roll)*cos(yaw), 	-sin(pitch)*sin(roll)*sin(yaw) - cos(yaw)*cos(roll), 	sin(yaw)*cos(pitch), py],
+	[cos(pitch)*cos(roll), -sin(roll)*cos(pitch), -sin(pitch), pz],
+        [ 0, 0,	 0,     1]]
+```
+
+To illustrate the next step, we can represent the above matrix as:
+
+```
+Matrix([
+	[lx, 	mx,	nx, 	px],
+	[ly,	my,	ny,	py],
+	[lz,	mz,	nz,	pz]]
+```
+
+where l, m and n are orthonormal vectors representing the end-effector orientation along X, Y and Z axes respectively, of the local coordinate frame.
+
+Let us also represent the wrist center (WC) as w. Since n is the vector along the z-axis of the gripper_link, we can say the following:
+
+```
+	wx = px - (d6 + l)*nx
+	wy = py - (d6 + l)*ny
+	wz = pz - (d6 + l)*nz
+	
+where:
+	px, py, pz = end-effector positions
+	wx, wy, wz = wrist positions
+	d6 = from DH table
+	l = end-effector length
+```
+
+### Position Analysis
+
+The position analysis is only concerned with the first three joints -- in order to position the WC (Wrist Center) of the spherical wrist.
+
+<Diagram here to illustrate the trigonometry involved>
+
+```
+θ1 = atan2(wy, wx)
+θ2 = atan2(s, r)
+	where:
+	s = wz - d1
+	r = sqrt(wx^2 + wy^2) (always +ve)
+θ3 = 
+
+```
+
+### Orientation Analysis
+
+This step is a bit more involved. The 
+
+
+
+
+
+
 
 
 The rotation matrix of the spherical wrist (R3_6) is calculated as:
@@ -225,17 +271,3 @@ Where:
 - `R_corr` is the rotation matrix of the gripper correction matrix that rotates the gripper around the Z axis by 180 degrees and around the Y axis by -90 degrees
 
 With this rotation matrix, it is possible to derive the Euler angles.
-
-#### Euler Angles
-
-[tf transformations](http://www.lfd.uci.edu/~gohlke/code/transformations.py.html)
-See function called `euler_from_matrix` that takes in a numpy rotation matrix and Euler axis sequence, and returns the three Euler angles (alpha, beta and gamma).
-
-The rotation matrix above uses the Euler definition of `XYZ`, which is a Tait-Bryan angle combination. With the alpha, beta and gamma angles, I mapped them to theta 4, theta 5 and theta 6, respectively.
-
-However, theta 4 and theta 5 required these additional calculations:
-
-```python
-theta4 = np.pi/2 + theta4
-theta5 = np.pi/2 - theta5
-```
