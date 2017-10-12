@@ -48,7 +48,7 @@ This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper a
 
 ## Denavit-Hartenberg (Modified) Parameters
 
-I obtained the following DH parameters from manipulator specifications (____ file). Note that these values relate to modified DH parameters.
+I obtained the following DH parameters from the manipulator [specifications](https://github.com/safdark/ROBO-pick-and-place/blob/master/kuka_arm/urdf/kr210.urdf.xacro). Note that these values relate to modified DH parameters.
 
 ![Denavit-Hartenberg parameter formulae](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_parameter_formulae.png)
 
