@@ -374,28 +374,33 @@ There is a debug script (for testing) that is located at the root level: IK_debu
 
 Running the server:
 
-1. Create the catkin workspace:
+Step 1. Create the catkin workspace:
 ```
 ~/> mkdir -p ~/catkin_ws/src
 ```
-1. Clone this repository:
+
+Step 2. Clone this repository:
 ```
 ~/catkin_ws/src/>git clone git@github.com:safdark/ROBO-pick-and-place .
 ```
-1. Run:
+
+Step 3. Run:
 ```
 ~/catkin_ws/src/>catkin_make
 ```
-1. Run:
+
+Step 4. Run:
 ```
 ~/catkin_ws/src/>source ../devel/setup.bash
 ```
-1. Run:
+
+Step 5. Run:
 ```
 ~/catkin_ws/src/>cd ROBO-pick-and-place/kuka_arm/scripts
 ~/catkin_ws/src/ROBO-pick-and-place/kuka_arm/scripts/>./safe_spawner.sh
 ```
-1. Run the IK_server utility in another terminal window
+
+Step 6. Run the IK_server utility in another terminal window
 ```
 ~/catkin_ws/src/ROBO-pick-and-place/kuka_arm/scripts/>rosrun kuka_arm IK_server.py
 ```
