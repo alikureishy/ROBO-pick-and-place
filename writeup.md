@@ -250,24 +250,18 @@ The position analysis is only concerned with the first three joints -- in order 
 
 ### Orientation Analysis
 
-This step is a bit more involved. The 
+Since the overall RPY (Roll Pitch Yaw) rotation between base_link and gripper_link must be equal to the product of individual rotations between respective links, following holds true:
 
+```
+R0_6 = Rrpy
 
-
-
-
-
-
-
-The rotation matrix of the spherical wrist (R3_6) is calculated as:
-
-```python
-R3_6 = R0_3.T * Rrpy * R_corr
+Both R0_6 and Rrpy are homogenous rotations between the base link and the gripper link.
 ```
 
-Where:
-- `R0_3.T` is the transposition of the rotation matrix from joints 1, 2 and 3, requiring the angles derived in the inverse kinematic position calculations
-- `Rrpy` is the rotation matrix of the gripper's current roll, pitch and yaw
-- `R_corr` is the rotation matrix of the gripper correction matrix that rotates the gripper around the Z axis by 180 degrees and around the Y axis by -90 degrees
+We can substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices and pre-multiply both sides of the above equation by inv(R0_3) which leads to:
 
-With this rotation matrix, it is possible to derive the Euler angles.
+```
+R3_6 = inv(R0_3) * Rrpy
+```
+
+This (above) is the rotation matrix of the spherical wrist (R3_6). And now, knowing this value allows us to decouple the IK analysis into the orientation piece, which we use next to derive the Euler angles (i.e, θ4, θ5 and θ6).
