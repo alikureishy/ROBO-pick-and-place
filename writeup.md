@@ -268,23 +268,25 @@ R0_6 = Rrpy
 Both R0_6 and Rrpy are homogenous rotations between the base link and the gripper link.
 ```
 
-Note that we needn't include the rotation for the EE, because it has no rotation relative to J6. What we want now, to isolate the orientation problem from the overall IK analysis, is R3_6, which is obtained as shown below:
+Note that we needn't include the rotation for the EE, because it has no rotation relative to J6. What we want now, to isolate the orientation problem from the overall IK analysis, is 2 things:
 
+* R3_6_symbolic, in its symbolic form (comprising exclusively of the last 3 joint angles) *
+We obtain the symbolic form of R3_6 using the original transformation matrics, starting from WC. This is obtained by:
 ```
-R3_6 = inv(R0_3) * Rrpy
-```
-
-We can now substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices, to obtain the evaluated form of R0_3, to solve for inv(R0_3). This (above) is then the rotation matrix of the spherical wrist (R3_6), which we can finally use to derive the Euler angles (i.e, θ4, θ5 and θ6), as shown next.
-
-<!--
-TODO: Determine the accuracy of the below referenced option:
-Option: We can also obtain the symbolic form of R3_6 using the original transformation matrics, starting from WC. This is obtained by:
 T3_6 = T3_4 * T4_5 * T5_6
-R3_6 = T3_6[:3, :3]
--->
+R3_6_symbolic = T3_6[:3, :3]
+```
 
-Printing this evaluated R3_6 yields:
+* R3_6_evaluated, which is obtained by using Rrpy and the evaluated version of R0_3 *
+We can substitute the values we calculated for joints 1 to 3 in their respective individual rotation matrices, to obtain the evaluated form of R0_3, to solve for inv(R0_3), which is then used below, to obtain R3_6_evaluated, as shown:
+```
+R3_6_evaluated = inv(R0_3) * Rrpy # After 
+```
+This (above) is then the evaluated rotation matrix of the spherical wrist (R3_6)
 
+Finally, using R3_6_symbolic and R3_6_evaluated, we can derive the Euler angles (i.e, θ4, θ5 and θ6), as shown next.
+
+Printing the _symbolic_ version of R3_6 yields the following matrix:
 ```
 R3_6 = Matrix([
 	[-sin(θ4)*sin(θ6) + cos(θ4)*cos(θ5)*cos(θ6), 	-sin(θ4)*cos(θ6) - sin(θ6)*cos(θ4)*cos(θ5),	-sin(θ5)*cos(θ4)],
@@ -292,7 +294,7 @@ R3_6 = Matrix([
 	[-sin(θ4)*cos(θ5)*cos(θ6) - sin(θ6)*cos(θ4),	sin(θ4)*sin(θ6)*cos(θ5) - cos(θ4)*cos(θ6),	sin(θ4)*sin(θ5)]]
 ```
 
-Representing this as:
+And let's say the _evaluated_ version, R3_6_evaluated, can be represented using the 'r-' placeholders as:
 ```
 Matrix([
 	[r11, 	r12,	r13],
@@ -300,8 +302,7 @@ Matrix([
 	[r31,	r33,	r33]]
 ```
 
-we get:
-
+This therefore gets us the following equivalencies (across R3_6_evaluated and R3_6_symbolic):
 ```
 r11 = -sin(θ4)*sin(θ6) + cos(θ4)*cos(θ5)*cos(θ6)
 r12 = -sin(θ4)*cos(θ6) - sin(θ6)*cos(θ4)*cos(θ5)
@@ -314,7 +315,7 @@ r32 = sin(θ4)*sin(θ6)*cos(θ5) - cos(θ4)*cos(θ6)
 r33 = sin(θ4)*sin(θ5)
 ```
 
-Let's now derive the theta angles, using some trigonometric formulas:
+Then, we can express the 3 remaining joint angles (θ4, θ5 and θ6) using some trigonometric formulas, as shown below:
 
 ```
 sin(θ)^2 + cos(θ)^2 = 1 <---- Pythagorean Identity (Unit Circle)
