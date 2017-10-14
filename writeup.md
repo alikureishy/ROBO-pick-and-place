@@ -1,7 +1,7 @@
 # ROS Inverse Kinematics - Pick & Place - w/ the Kuka KR210 6-DoF Manipulator
 ---
 
-![Kuka KR210 Pick and Place Project](http://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/pick_and_place_challenge.gif)
+![Kuka KR210 Pick and Place Project](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/pick_and_place_challenge.gif)
 
 ## Table of Contents
 
@@ -48,15 +48,15 @@ The IK analysis in steps 2 and 7 above, will follow the below sequence of operat
 
 This is a 6 DOF arm, with six linearly-connected revolute joints and a gripper attached to the 6th joint. Here is the Denavit-Hartenberg (DH) diagram of the arm:
 
-![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm](http://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_diagram.jpg)
+![Denavit-Hartenberg diagram of the Kuka KR210 6-DoF arm](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_diagram.jpg)
 
 [Note: This will be polished and re-uploadded for clarity]
 
 ## Denavit-Hartenberg (Modified) Parameters
 
-I obtained the following DH parameters from the manipulator [specifications](http://github.com/safdark/ROBO-pick-and-place/blob/master/kuka_arm/urdf/kr210.urdf.xacro). Note that these values relate to modified DH parameters.
+I obtained the following DH parameters from the manipulator [specifications](https://github.com/safdark/ROBO-pick-and-place/blob/master/kuka_arm/urdf/kr210.urdf.xacro). Note that these values relate to modified DH parameters.
 
-![Denavit-Hartenberg parameter formulae](http://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_parameter_formulae.png)
+![Denavit-Hartenberg parameter formulae](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/dh_parameter_formulae.png)
 
 | n | α(i-1) | a(i-1) | d(i) | θ(i) |
 |:-:|:--:|:-----:|:------:|:---:|
@@ -260,7 +260,7 @@ where:
 The position analysis is only concerned with the first three joints -- in order to just position the WC (Wrist Center) of the spherical wrist at the requisite location (regardless of any orientation).
 
 This is illustrated entirely in the following diagram:
-![Illustration of Position Analysis of KUKA 210 Arm](http://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/position_analysis_diagram.jpg)
+![Illustration of Position Analysis of KUKA 210 Arm](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/position_analysis_diagram.jpg)
 
 [Note: This will be polished and re-uploadded for clarity]
 
