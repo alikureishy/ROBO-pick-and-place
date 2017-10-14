@@ -1,7 +1,11 @@
+import sys
+sys.path.insert(0, './kuka_arm/scripts')
+
 from sympy import *
 from time import time
 from mpmath import radians
 import tf
+from IKSolver import *
 
 '''
 Format of test case is [ [[EE position],[EE orientation as quaternions]],[WC location],[joint angles]]
