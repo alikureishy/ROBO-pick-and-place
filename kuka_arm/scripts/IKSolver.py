@@ -13,6 +13,7 @@
 import tf
 from mpmath import *
 from sympy import *
+from time import time
 
 class Kuka210IKSolver(object):
     #            
@@ -51,21 +52,14 @@ class Kuka210IKSolver(object):
                     ]) # yaw
         return rotation
 
-    def __init__(self):
-        pass
-        
-    def get_joint_angles(self, px, py, pz, roll, pitch, yaw):
-        ### Your FK code here
-        # Create symbols
+    def __init__(self, verbose=False):
+        self.verbose = verbose
         d1, d2, d3, d4, d5, d6, d7 = symbols("d1:8") # link offset
         a0, a1, a2, a3, a4, a5, a6 = symbols("a0:7") # link length
         alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols("alpha0:7") # link twist
         q1, q2, q3, q4, q5, q6, q7 = symbols("q1:8") # joint angles
-
-        #
-        #   
+        
         # Create Modified DH parameters
-        #
         DH_Table = {    alpha0:    0.0,    a0:       0.0,     d1:     0.75,     q1:         q1,
                         alpha1: -pi/2.,    a1:      0.35,     d2:      0.0,     q2: -pi/2 + q2,
                         alpha2:    0.0,    a2:      1.25,     d3:      0.0,     q3:         q3,
@@ -74,44 +68,69 @@ class Kuka210IKSolver(object):
                         alpha5: -pi/2.,    a5:       0.0,     d6:      0.0,     q6:         q6,
                         alpha6:    0.0,    a6:       0.0,     d7:    0.303,     q7:        0.0}
 
-        #
         # Create individual transformation matrices
-        #
-        T0_1 =  self.__t__(alpha0, a0, d1, q1).subs(DH_Table)
-        T1_2 =  self.__t__(alpha1, a1, d2, q2).subs(DH_Table)
-        T2_3 =  self.__t__(alpha2, a2, d3, q3).subs(DH_Table)
-        T3_4 =  self.__t__(alpha3, a3, d4, q4).subs(DH_Table)
-        T4_5 =  self.__t__(alpha4, a4, d5, q5).subs(DH_Table)
-        T5_6 =  self.__t__(alpha5, a5, d6, q6).subs(DH_Table)
-        T6_EE = self.__t__(alpha6, a6, d7, q7).subs(DH_Table)
-        T0_EE = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE
-
-        ### Your IK code here 
-        # Compensate for rotation discrepancy between DH parameters and Gazebo
-        #
+        self.T0_1 =  self.__t__(alpha0, a0, d1, q1).subs(DH_Table)
+        self.T1_2 =  self.__t__(alpha1, a1, d2, q2).subs(DH_Table)
+        self.T2_3 =  self.__t__(alpha2, a2, d3, q3).subs(DH_Table) # Remaining matrices aren't needed. See junk code at bottom of file.
+        self.T3_4 =  self.__t__(alpha3, a3, d4, q4).subs(DH_Table)
+        self.T4_5 =  self.__t__(alpha4, a4, d5, q5).subs(DH_Table)
+        self.T5_6 =  self.__t__(alpha5, a5, d6, q6).subs(DH_Table)
+        self.T6_EE = self.__t__(alpha6, a6, d7, q7).subs(DH_Table)
+        self.T0_EE = self.T0_1 * self.T1_2 * self.T2_3 * self.T3_4 * self.T4_5 * self.T5_6 * self.T6_EE
+        
         # find EE rotational matrix
-        r, p, y = symbols ('r p y')
+        roll, pitch, yaw = self.rpy = symbols ('roll pitch yaw')
+        px, py, pz = self.pos = symbols ('px py pz')
+        
+        # Compensate for rotation discrepancy between DH parameters and Gazebo
 
-        Rot_x = self.__rot_x__(r)
-        Rot_y = self.__rot_y__(p)
+        Rot_x = self.__rot_x__(roll)
+        Rot_y = self.__rot_y__(pitch)
         Rot_z = self.__rot_z__(yaw)
-        Rot_EE = Rot_x * Rot_y * Rot_z
+        Rot_xyz = Rot_x * Rot_y * Rot_z
     
         # Rotation error (More information in the KR210 kinematics section)
-        Rot_Error = Rot_z.subs(y, radians(180)) * Rot_y.subs(p, radians(-90))
+        Rot_Error = Rot_z.subs(yaw, radians(180)) * Rot_y.subs(pitch, radians(-90))
+        self.Rot_EE = Rot_xyz * Rot_Error
+        self.EE = Matrix([[px], [py], [pz]])
 
-        Rot_EE = Rot_EE * Rot_Error
-        Rot_EE = Rot_EE.subs({'r': roll, 'p': pitch, 'y': yaw})
+        if self.verbose:
+            print ("Symbolic matrices:")
+            self.print_matrix(self.T0_1, "T0_1")
+            self.print_matrix(self.T1_2, "T1_2")
+            self.print_matrix(self.T2_3, "T2_3")
+            self.print_matrix(self.T3_4, "T3_4")
+            self.print_matrix(self.T4_5, "T4_5")
+            self.print_matrix(self.T5_6, "T5_6")
+            self.print_matrix(self.T6_EE, "T6_EE")
+            self.print_matrix(self.T0_EE, "T0_EE")
+            self.print_matrix(Rot_x, "Rot_x")
+            self.print_matrix(Rot_y, "Rot_y")
+            self.print_matrix(Rot_z, "Rot_z")
+            self.print_matrix(Rot_xyz, "Rot_xyz")
+            self.print_matrix(Rot_Error, "Rot_Error")
+            self.print_matrix(self.Rot_EE, "Rot_EE")
+        
+    def print_matrix(self, matrix, name):
+        print ("{} : ".format(name))
+        pprint (matrix)
     
-        EE = Matrix([[px],
-                     [py],
-                     [pz]])
+    def get_wc(self, px, py, pz, roll, pitch, yaw):
+        # First get the position of the Wrist Center (WC)    
+        Rot_EE = self.Rot_EE.subs({'roll': roll, 'pitch': pitch, 'yaw': yaw})
+        EE = self.EE.subs({'px': px, 'py': py, 'pz': pz})
+        WC = EE - (0.303) * Rot_EE[:,2]
+        return WC
+    
+    def get_joint_angles(self, px, py, pz, roll, pitch, yaw):
+        start_time = time()
+
+        # First get the position of the Wrist Center (WC)    
+        Rot_EE = self.Rot_EE.subs({'roll': roll, 'pitch': pitch, 'yaw': yaw})
+        EE = self.EE.subs({'px': px, 'py': py, 'pz': pz})
         WC = EE - (0.303) * Rot_EE[:,2]
 
-        #
-        # Calculate joint angles using Geometric IK method
-        #
-        #
+        # Position analysis (Calculate joint angles using Geometric IK method):
         theta1 = atan2(WC[1], WC[0])
         side_a = 1.501
         side_b = sqrt(pow((sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35), 2) + pow((WC[2] - 0.75), 2))
@@ -124,18 +143,45 @@ class Kuka210IKSolver(object):
         theta2 = pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
         theta3 = pi / 2 - (angle_b + 0.036) # 0.036 accounts for sag in link4 of -0.054m
 
-        R0_3 = T0_1[0:3, 0:3] * T1_2[0:3, 0:3] * T2_3[0:3, 0:3]
-        R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+        # Orientation analysis (Euler angles from rotation matrix):
+        R0_3 = self.T0_1[0:3, 0:3] * self.T1_2[0:3, 0:3] * self.T2_3[0:3, 0:3]
+        R0_3 = R0_3.evalf(subs={'q1': theta1, 'q2': theta2, 'q3': theta3})
+        R3_6 = R0_3.transpose() * Rot_EE
 
-        R3_6 = R0_3.inv("LU") * Rot_EE
-
-        # Euler angles from rotation matrix
+        # The formulae below are obtained by 
         theta4 = atan2(R3_6[2, 2], -R3_6[0,2])
         theta5 = atan2(sqrt(R3_6[0,2] * R3_6[0,2] + R3_6[2,2] * R3_6[2,2]), R3_6[1,2])
         theta6 = atan2(-R3_6[1, 1], R3_6[1, 0])
         
         joint_angles = [theta1, theta2, theta3, theta4, theta5, theta6]
-        print ("Returning IK joint angles: ", joint_angles)
+        
+        end_time = time()
+        
+        if self.verbose:
+            print ("Evaluated matrices:")
+            self.print_matrix(Rot_EE, "Rot_EE")
+            self.print_matrix(EE, "EE")
+            self.print_matrix(WC, "WC")
+            self.print_matrix(R0_3, "R0_3")
+            self.print_matrix(R3_6, "R3_6")
+            
+        ## FK Error
+#        if check_error:
+#            ee = self.get_fk(*joint_angles)
+#            print ("\nTotal run time to calculate joint angles from pose is %04.4f seconds" % (end_time-start_time))
+#            ee_x_e = abs(ee[0]-px)
+#            ee_y_e = abs(ee[1]-py)
+#            ee_z_e = abs(ee[2]-pz)
+#            ee_offset = sqrt(ee_x_e**2 + ee_y_e**2 + ee_z_e**2)
+#            print ("Expected end effector [{}, {}, {}]: ".format(px, py, pz))
+#            print ("End effector error for x position is: %04.8f units" % ee_x_e)
+#            print ("End effector error for y position is: %04.8f units" % ee_y_e)
+#            print ("End effector error for z position is: %04.8f units" % ee_z_e)
+#            print ("Overall end effector offset is: %04.8f units \n" % ee_offset)
+        
+        print ("Returning IK joint angles {} in {} seconds: ".format(joint_angles, end_time - start_time))
         return joint_angles
 
+    def get_fk(self, theta1, theta2, theta3, theta4, theta5, theta6):
+        return self.T0_EE.evalf(subs={'q1': theta1, 'q2': theta2, 'q3': theta3, 'q4': theta4, 'q5': theta5, 'q6': theta6})
 
