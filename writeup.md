@@ -414,6 +414,12 @@ Step 6. Run the IK_server utility in another terminal window
 
 The 'safe_spawner.sh' file should trigger a few terminal windows to be spawned, for the different ROS nodes. One of them will be Gazebo, and the other RViz.
 
+## Issues
+I faced the following issues with the implementation:
+- Converting theta angles to float: In situations where the theta angles were 0, my code was returning the result of atan2, which would end up being of int() type. I had to cast the thetas to float() before returning them...wich fixed that issue. Furthermore, I decided to convert all int() values in my symbolic transformation matrices into floats, to maintain consistency and avoid any type issues.
+- Using matrix.T or matrix.transpose() seemed to work more efficiently than matrix.inverse("LU").
+- Efficiency: One of the issues I faced when writing the code, was to manage the the symbols in the matrices, since they were often not in the local scope of where they were defined. I worked aroudn this issue by referring to the symbols by name, instead of by object. This is admittedly not relevant to kinematics, but thought I'd mention it here nevertheless, for posterity's sake.
+
 ## Inspirations
 
 Some inspiration received from the following writeups:
