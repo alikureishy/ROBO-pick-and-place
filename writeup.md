@@ -15,6 +15,7 @@
     - [Position Analysis](#position-analysis)
     - [Orientation Analysis](#orientation-analysis)
 - [Running the code](#running-the-code)
+- [Issues](#issues)
 - [Inspirations](#inspirations)
 
 ## Overview
@@ -43,6 +44,9 @@ The IK analysis in steps 2 and 7 above, will follow the below sequence of operat
 1. Determine the _symbolic_ rotation matrix (R3_6_symbolic) using the evaluated version of R0_3 and Rrpy
 1. Determine the _evaluated_ rotation matrix (R3_6_evaluated) using the transformation matrices above (T3_4, T4_5 and T5_6)
 1. Determine joint angles 4-6 using equivalencies between R3_6_symbolic and R3_6_evaluated and then solving them for the 3 joint angles.
+
+Please see below the completion of 7 rounds of pick+place, with 6 successes and 1 failure.
+![After 6 Attempts](https://github.com/safdark/ROBO-pick-and-place/blob/master/misc_images/6_in_1_out.png)
 
 ## Denavit-Hartenberg Diagram
 
