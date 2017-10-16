@@ -79,8 +79,8 @@ class Kuka210IKSolver(object):
         self.T0_EE = self.T0_1 * self.T1_2 * self.T2_3 * self.T3_4 * self.T4_5 * self.T5_6 * self.T6_EE
         
         # find EE rotational matrix
-        roll, pitch, yaw = self.rpy = symbols ('roll pitch yaw')
-        px, py, pz = self.pos = symbols ('px py pz')
+        roll, pitch, yaw = symbols ('roll pitch yaw')
+        px, py, pz = symbols ('px py pz')
         
         # Compensate for rotation discrepancy between DH parameters and Gazebo
 
@@ -140,20 +140,20 @@ class Kuka210IKSolver(object):
         angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))
         angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
 
-        theta2 = pi / 2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
-        theta3 = pi / 2 - (angle_b + 0.036) # 0.036 accounts for sag in link4 of -0.054m
+        theta2 = pi / 2.0 - angle_a - atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
+        theta3 = pi / 2.0 - (angle_b + 0.036) # 0.036 accounts for sag in link4 of -0.054m
 
         # Orientation analysis (Euler angles from rotation matrix):
         R0_3 = self.T0_1[0:3, 0:3] * self.T1_2[0:3, 0:3] * self.T2_3[0:3, 0:3]
         R0_3 = R0_3.evalf(subs={'q1': theta1, 'q2': theta2, 'q3': theta3})
-        R3_6 = R0_3.transpose() * Rot_EE
+        R3_6 = R0_3.T * Rot_EE
 
-        # The formulae below are obtained by 
+        # The formulae below are obtained by
         theta4 = atan2(R3_6[2, 2], -R3_6[0,2])
         theta5 = atan2(sqrt(R3_6[0,2] * R3_6[0,2] + R3_6[2,2] * R3_6[2,2]), R3_6[1,2])
         theta6 = atan2(-R3_6[1, 1], R3_6[1, 0])
         
-        joint_angles = [theta1, theta2, theta3, theta4, theta5, theta6]
+        joint_angles = [float(theta1), float(theta2), float(theta3), float(theta4), float(theta5), float(theta6)]
         
         end_time = time()
         
