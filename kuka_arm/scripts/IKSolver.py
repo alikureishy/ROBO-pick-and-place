@@ -149,6 +149,8 @@ class Kuka210IKSolver(object):
         R3_6 = R0_3.T * Rot_EE
 
         # The formulae below are obtained by
+        # Check this link for optimization to avoid excessive rotations of the wrist:
+        #   https://udacity-robotics.slack.com/archives/C5HUQ0HB9/p1499136717183191
         theta4 = atan2(R3_6[2, 2], -R3_6[0,2])
         theta5 = atan2(sqrt(R3_6[0,2] * R3_6[0,2] + R3_6[2,2] * R3_6[2,2]), R3_6[1,2])
         theta6 = atan2(-R3_6[1, 1], R3_6[1, 0])

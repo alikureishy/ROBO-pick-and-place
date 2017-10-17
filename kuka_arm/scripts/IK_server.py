@@ -32,6 +32,9 @@ def handle_calculate_IK(req):
             # IK code starts here
             joint_trajectory_point = JointTrajectoryPoint()
 
+            print ("Received position: {}".format(req.poses[x].position))
+            print ("Received quarternions: {}".format(req.poses[x].orientation))
+
             # Extract end-effector position and orientation from request
             # px,py,pz = end-effector position
             # roll, pitch, yaw = end-effector orientation
