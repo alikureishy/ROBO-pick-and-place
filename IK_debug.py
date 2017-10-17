@@ -26,7 +26,10 @@ test_cases = {1:[[[2.16135,-1.42635,1.55109],
                   [0.01735,-0.2179,0.9025,0.371016]],
                   [-1.1669,-0.17989,0.85137],
                   [-2.99,-0.12,0.94,4.06,1.29,-4.12]],
-              4:[],
+              4:[[[0.32811409481,2.45856458859,1.66976032127],
+                  [-0.0759723815763,0.105992570058,-0.0129844771036,0.991375395945]],
+                  [-1.1669,-0.17989,0.85137],
+                  [-2.99,-0.12,0.94,4.06,1.29,-4.12]],
               5:[]}
 
 
@@ -115,6 +118,7 @@ def test_code(test_case):
         print ("Overall wrist offset is: %04.8f units" % wc_offset)
 
     # Find theta errors
+    print ("Expected joint angles: {}".format(test_case[2]))
     t_1_e = abs(theta1-test_case[2][0])
     t_2_e = abs(theta2-test_case[2][1])
     t_3_e = abs(theta3-test_case[2][2])
@@ -148,6 +152,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number = 3
+    test_case_number = 4
 
     test_code(test_cases[test_case_number])

@@ -50,6 +50,7 @@ def handle_calculate_IK(req):
             # In the next line replace theta1,theta2...,theta6 by your joint angle variables
             joint_trajectory_point.positions = solver.get_joint_angles(px, py, pz, roll, pitch, yaw)
             joint_trajectory_list.append(joint_trajectory_point)
+            print ("Returning IK joint angles {}: ".format(joint_trajectory_point.positions))
 
         rospy.loginfo("length of Joint Trajectory List: %s" % len(joint_trajectory_list))
         return CalculateIKResponse(joint_trajectory_list)

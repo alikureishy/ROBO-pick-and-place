@@ -125,24 +125,68 @@ class Kuka210IKSolver(object):
     def get_joint_angles(self, px, py, pz, roll, pitch, yaw):
         start_time = time()
 
+        # TODO: Code duplication in this section below (copied from DH_Table)
+        a1 = 0.35 # (needs projection to X of J1 after rotating theta1)
+        d1 = 0.75
+        a2 = 1.25
+        d7 = 0.303
+        d4 = 1.5
+        a3 = -0.054
+
+
         # First get the position of the Wrist Center (WC)    
         Rot_EE = self.Rot_EE.subs({'roll': roll, 'pitch': pitch, 'yaw': yaw})
         EE = self.EE.subs({'px': px, 'py': py, 'pz': pz})
-        WC = EE - (0.303) * Rot_EE[:,2]
+        WC = EE - (d7) * Rot_EE[:,2]
 
         # Position analysis (Calculate joint angles using Geometric IK method):
-        theta1 = atan2(WC[1], WC[0])
-        side_a = 1.501
-        side_b = sqrt(pow((sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35), 2) + pow((WC[2] - 0.75), 2))
-        side_c = 1.25
+        # theta 1:
+        print ("WC: {}".format(WC))
+        wx, wy, wz = WC
+        theta1 = atan2(wy, wx)
+        print ("Theta1:", theta1)
+        
+        # theta 2:
+        # theta2 = 90 - (alpha + beta)
+        
+        # alpha = atan2(l24y, l24)
+        # l24: the actual length between joints 2 and 4.
+        #   needs to be derived from l24x *AFTER* rotating the arm by 
+        #   theta1 (since wx is the projected version of the arm)
+        # l24x = wx - a1
+        # l24 = l24x / cos(theta1)
+#        print ("cos-theta", cos(theta1))
+        proj = wx / cos(theta1)
+#        print ("reverse proj:", proj)
+        l24 = (proj - a1) if proj > 0 else (a1 - proj) # performing inverse projection
+#        print ("l24", l24)
+        l24z = wz - d1
+        alpha = atan2(l24z, l24)
 
-        angle_a = acos((side_b * side_b + side_c * side_c - side_a * side_a) / (2 * side_b * side_c))
-        angle_b = acos((side_a * side_a + side_c * side_c - side_b * side_b) / (2 * side_a * side_c))
-        angle_c = acos((side_a * side_a + side_b * side_b - side_c * side_c) / (2 * side_a * side_b))
-
-        theta2 = pi / 2.0 - angle_a - atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
-        theta3 = pi / 2.0 - (angle_b + 0.036) # 0.036 accounts for sag in link4 of -0.054m
-
+        # beta = use cosine rule (A^2 + B^2 + 2ABCos(beta) = C^2)
+        #   A = a2
+        #   B = l24
+        #   C = l34 = sqrt (a3^2 + d4^2)
+        l34 = self.get_hypotenuse(d4, -a3)
+#        print ("l34", l34)
+        beta = self.get_angle_from_sides(l34, a2, l24)
+#        print("beta", beta)
+        theta2 = radians(90) - (alpha + beta)
+        
+        # theta 3:
+        # theta3 = gamma - psi
+        # gamma = use cosine rule (A^2 + B^2 + 2ABCos(beta) = C^2)
+        #   A = a2
+        #   B = l34
+        #   C = l24
+        # psi = pythagoras theorem (atan2 (opp, adj))
+        #   Opp = d4
+        #   Adj = a3
+        
+        gamma = self.get_angle_from_sides (a2, l34, l24)
+        psi = atan2 (d4, a3)
+        theta3 = - (gamma - psi)
+        
         # Orientation analysis (Euler angles from rotation matrix):
         R0_3 = self.T0_1[0:3, 0:3] * self.T1_2[0:3, 0:3] * self.T2_3[0:3, 0:3]
         R0_3 = R0_3.evalf(subs={'q1': theta1, 'q2': theta2, 'q3': theta3})
@@ -152,10 +196,20 @@ class Kuka210IKSolver(object):
         # Check this link for optimization to avoid excessive rotations of the wrist:
         #   https://udacity-robotics.slack.com/archives/C5HUQ0HB9/p1499136717183191
         theta4 = atan2(R3_6[2, 2], -R3_6[0,2])
-        theta5 = atan2(sqrt(R3_6[0,2] * R3_6[0,2] + R3_6[2,2] * R3_6[2,2]), R3_6[1,2])
+        theta5 = atan2(self.get_hypotenuse(R3_6[0,2], R3_6[2,2]), R3_6[1,2])
         theta6 = atan2(-R3_6[1, 1], R3_6[1, 0])
         
+
+        theta1 = float(theta1)
+#        print (theta2)
+        theta2 = float(theta2)
+        theta3 = float(theta3)
+        theta4 = float(theta4)
+        theta5 = float(theta5)
+        theta6 = float(theta6)
         joint_angles = [float(theta1), float(theta2), float(theta3), float(theta4), float(theta5), float(theta6)]
+#        joint_angles = self.minimize_joint_revolution(joint_angles)
+#        self.history = joint_angles # this will be used to optimize the motion of the next angles relative to current
         
         end_time = time()
         
@@ -166,23 +220,39 @@ class Kuka210IKSolver(object):
             self.print_matrix(WC, "WC")
             self.print_matrix(R0_3, "R0_3")
             self.print_matrix(R3_6, "R3_6")
-            
-        ## FK Error
-#        if check_error:
-#            ee = self.get_fk(*joint_angles)
-#            print ("\nTotal run time to calculate joint angles from pose is %04.4f seconds" % (end_time-start_time))
-#            ee_x_e = abs(ee[0]-px)
-#            ee_y_e = abs(ee[1]-py)
-#            ee_z_e = abs(ee[2]-pz)
-#            ee_offset = sqrt(ee_x_e**2 + ee_y_e**2 + ee_z_e**2)
-#            print ("Expected end effector [{}, {}, {}]: ".format(px, py, pz))
-#            print ("End effector error for x position is: %04.8f units" % ee_x_e)
-#            print ("End effector error for y position is: %04.8f units" % ee_y_e)
-#            print ("End effector error for z position is: %04.8f units" % ee_z_e)
-#            print ("Overall end effector offset is: %04.8f units \n" % ee_offset)
-        
-        print ("Returning IK joint angles {} in {} seconds: ".format(joint_angles, end_time - start_time))
+
         return joint_angles
+
+    def get_angle_from_sides(self, a, b, c):
+        # cosine law: sides of a triangle are a, b, c
+        #   a^2 + b^2 - 2abCos(q) = c^2
+        # identity law of unit circle:
+        #   sin^2(q) + cos^2(q) = 1
+        
+        cos_q = (a*a + b*b - c*c) / (2 * a * b) # cosine law
+#        sin_q = sqrt (1 - cos_q * cos_q)
+#        q = atan2(sin_q, cos_q)
+        q = acos(cos_q)
+        return q
+        
+#    def minimize_joint_revolution(self, joint_angles):
+#        if self.history is not None:
+#            # The goal of this routine is to minimize the amount of
+#            # rotation required to reach the same orientation relative
+#            # to the previous orientation, if one exists:
+#            for i in range(len(joint_angles)):
+#                prev = self.history[i]
+#                curr = joint_angles[i]
+#                anticlockwise_delta = curr-prev
+#                clockwise_delta = -(2*pi - anticlockwise_delta)
+#                if clockwise_delta > anticlockwise_delta:
+#                    joint_angles[i] = prev        
+#        
+#        return joint_angles
+#    
+    
+    def get_hypotenuse(self, a, b):
+        return sqrt(a*a + b*b)
 
     def get_fk(self, theta1, theta2, theta3, theta4, theta5, theta6):
         return self.T0_EE.evalf(subs={'q1': theta1, 'q2': theta2, 'q3': theta3, 'q4': theta4, 'q5': theta5, 'q6': theta6})
